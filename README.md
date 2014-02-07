@@ -1,4 +1,4 @@
 e--compiler
 ===========
 
-Compiler for language E--, part of Compiler Design (CSE 504) course project at Stony Brook University, Spring 2014
+Compiler for language E--, Compiler Design course project (Stony Brook University CSE 504 Spring 2014)
