@@ -150,24 +150,26 @@ DOUBLE         {SMANTISSA}([eE]{SINTNUM})?
  /* Basic types */
 
 "enum"           { return TOK_ENUM; }
-"any"            { return TOK_ANY; }
-"bit"            { return TOK_BIT; }
 "bool"           { return TOK_BOOL; }
 "byte"           { return TOK_BYTE; }
+"bit"            { return TOK_BIT; }
 "class"          { return TOK_CLASS; }
 "double"         { return TOK_DOUBLE; }
+"int"            { return TOK_INT; }
+"string"         { return TOK_STRING; }
+"void"           { return TOK_VOID; }
+
+ /* Other keywords */
+"any"            { return TOK_ANY; }
 "else"           { return TOK_ELSE; }
 "event"          { return TOK_EVENT; }
 "false"          { return TOK_FALSE; }
 "if"             { return TOK_IF; }
 "import"         { return TOK_USE; }
-"int"            { return TOK_INT; }
 "interface"      { return TOK_INTERFACE; }
 "print"          { return TOK_PRINT; }
 "return"         { return TOK_RETURN; }
-"string"         { return TOK_STRING; }
 "true"           { return TOK_TRUE; }
-"void"           { return TOK_VOID; }
 
  /**************** Identifier ****************/
 [a-zA-Z_][a-zA-Z_0-9]* { strcpy(string_buf, yytext);
