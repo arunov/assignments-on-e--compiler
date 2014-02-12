@@ -27,9 +27,6 @@ DECIMAL_DIGIT  [0-9]
 UINTNUM	       {DECIMAL_DIGIT}+
 SINTNUM        [+-]?{UINTNUM}
 HEXNUM         0x{UINTNUM}
-UMANTISSA      {DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+
-SMANTISSA      [+-]?{UMANTISSA}
-DOUBLE         {SMANTISSA}([eE]{SINTNUM})?
 WHITESPACE     [' '\t]*
 %x STRING
 %x FILE_LINE
@@ -66,7 +63,9 @@ WHITESPACE     [' '\t]*
                  return TOK_UINTNUM;
                }
 
-{DOUBLE}       { sscanf( yytext, "%f", &(yylval.dVal));
+[+-]?{DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+([eE]{SINTNUM})? | \
+[+-]?{DECIMAL_DIGIT}+\.([eE]{SINTNUM})? {
+                 sscanf( yytext, "%f", &(yylval.dVal));
                  return TOK_DOUBLENUM;
                }
 
