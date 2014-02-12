@@ -30,6 +30,7 @@ HEXNUM         0x{UINTNUM}
 UMANTISSA      {DECIMAL_DIGIT}*\.{DECIMAL_DIGIT}+
 SMANTISSA      [+-]?{UMANTISSA}
 DOUBLE         {SMANTISSA}([eE]{SINTNUM})?
+WHITESPACE     [' '\t]*
 %x STRING
 %x FILE_LINE
 %x FILE_NAME
@@ -46,7 +47,7 @@ DOUBLE         {SMANTISSA}([eE]{SINTNUM})?
                        str_caller = FILE_INFO_END;
                        BEGIN(STRING);
                      }
-<FILE_INFO_END>\n    { BEGIN(INITIAL);
+<FILE_INFO_END>.*\n  { BEGIN(INITIAL);
                        free(filename);
                        int size = strlen(string_buf) + 1;
                        filename = (char*) malloc(size);
@@ -173,11 +174,12 @@ DOUBLE         {SMANTISSA}([eE]{SINTNUM})?
 
  /**************** Identifier ****************/
 [a-zA-Z_][a-zA-Z_0-9]* { strcpy(string_buf, yytext);
+                         yylval.cVal = string_buf;
                          return TOK_ID;
                        }
 
  /**************** White spaces ****************/
-[' '\t]* { /* Ignore white spaces */ }
+<*>{WHITESPACE} { /* Ignore white spaces */ }
 
  /**************** Unrecognized character ==> error ****************/
 
