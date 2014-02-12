@@ -86,6 +86,7 @@ WHITESPACE     [' '\t]*
 <STRING>\n     { BEGIN(str_caller);
                  *string_buf_ptr = '\0';
                  yylval.cVal = string_buf;
+                 cout << "String constant cannot span multiple lines" << endl;
                  if(str_caller != FILE_INFO_END) {
                      return TOK_STRCONST;
                  }
