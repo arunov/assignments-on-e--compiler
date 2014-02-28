@@ -30,7 +30,28 @@ using namespace std;
 %token TOK_LONG TOK_TRUE TOK_FALSE TOK_IDENT
 
 /*********************   Precedence and Associativity    ********************/
-
+%nonassoc	TOK_ASSIGN	/* 1 =  */
+%left		TOK_PAT_OR	/* 2 \/ */
+%left		TOK_COLON	/* 3 :  */
+%left		TOK_PAT_STAR	/* 4 ** */
+%right		TOK_PAT_NOT	/* 5 pattern not */
+%left		TOK_OR		/* 6 || */
+%left		TOK_AND		/* 7 && */
+%right		TOK_NOT		/* 8 !  */
+%nonassoc	TOK_EQ TOK_NE TOK_GT TOK_LT TOK_GE TOK_LE
+				/* 9 == != > < >= <= */
+%left		TOK_BITOR TOK_BITXOR
+				/* 10 | ^ */
+%left		TOK_BITAND	/* 11 & */
+%right		TOK_BITNOT	/* 12 ~ */
+%left		TOK_SHL TOK_SHR	/* 13 << >> */
+%left		TOK_PLUS TOK_MINUS
+				/* 14 + - */
+%left		TOK_MULT TOK_DIV TOK_MOD
+				/* 15 * / % */
+%right		TOK_UMINUS	/* 16 - */
+%left		TOK_LBRACE	/* 17 [ */
+%left		TOK_COMMA	/* 18 , */
 
 /**************************************************************************/
 
