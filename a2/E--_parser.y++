@@ -73,7 +73,9 @@ ifc_decl_star: /* empty */ {
 ifc_decl: TOK_SEMICOLON /* Fill in the other rules */
 ;
 
-rule_star: /* fill in */
+rule_star: /* empty */ {
+	errMsg("Must contain at least one rule");
+}
 ;
 
 %%
