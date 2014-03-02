@@ -127,7 +127,7 @@ formal_param_plus: formal_param {}
 ;
 
 event_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {
-	prt("EventFormalParam");
+	prt("FormalParamList");
 }
 ;
 
@@ -145,11 +145,6 @@ variable_decl_star: /* empty */ {}
 
 event_decl: TOK_EVENT TOK_IDENT event_formal_param_star {
 }
-| event_any_decl { prt("anyEvent"); }
-;
-
-event_any_decl: TOK_EVENT TOK_ANY {}
-| TOK_EVENT TOK_ANY event_formal_param_star {}
 ;
 
 rule: event_pattern TOK_ARROW statement TOK_SEMICOLON {
@@ -157,7 +152,8 @@ rule: event_pattern TOK_ARROW statement TOK_SEMICOLON {
 }
 ;
 
-event_pattern: primitive_pat_opt {}
+event_pattern: primitive_pat_opt {
+}
 | TOK_LPAREN event_pattern TOK_RPAREN { prt("(EventPat)"); }
 | TOK_NOT event_pattern { prt("!EventPat"); }
 | event_pattern TOK_COLON event_pattern { prt("EventPat : EventPat"); }
@@ -165,16 +161,32 @@ event_pattern: primitive_pat_opt {}
 | event_pattern TOK_PAT_STAR event_pattern { prt("EventPat **"); }
 ;
 
-primitive_pat_opt: primitive_pat {}
-| primitive_pat TOK_BITOR expr {}
+primitive_pat_opt: primitive_pat {
+	prt("PrimitivePat");
+}
+| primitive_pat TOK_BITOR expr {
+	prt("PrimitivePatWithCond");
+}
 ;
 
-primitive_pat: TOK_IDENT TOK_LPAREN ident_list TOK_RPAREN {}
+primitive_pat: TOK_IDENT TOK_LPAREN event_formal_param_list TOK_RPAREN {
+	prt("NormalEvent");
+}
+| TOK_ANY {
+	prt("anyEvent");
+}
+| TOK_ANY event_formal_param_star {
+	prt("anyEvent");
+}
 ;
 
-ident_list: /* empty */ {}
-| TOK_IDENT {}
-| ident_list TOK_COMMA TOK_IDENT {}
+event_formal_param_list: /* empty */ {}
+| TOK_IDENT {
+	prt("EventFormalParam");
+}
+| event_formal_param_list TOK_COMMA TOK_IDENT {
+	prt("EventFormalParam");
+}
 ;
 
 statement_star: /* empty */ {}
@@ -248,6 +260,7 @@ type: TOK_VOID { prt("Type"); }
 | TOK_STRING { prt("Type"); }
 | TOK_BYTE { prt("Type"); }
 | TOK_INT { prt("Type"); }
+| TOK_UNSIGNED TOK_INT { prt("Type"); }
 | TOK_DOUBLE { prt("Type"); }
 | TOK_IDENT { prt("Type"); }
 ;
