@@ -152,13 +152,12 @@ event_decl: TOK_EVENT TOK_IDENT event_formal_param_star {
 }
 ;
 
-rule: event_pattern TOK_ARROW statement TOK_SEMICOLON {
+rule: event_pattern TOK_ARROW statement {
 	prt("Rule");
 }
 ;
 
-event_pattern: primitive_pat_opt {
-}
+event_pattern: primitive_pat_opt {}
 | TOK_LPAREN event_pattern TOK_RPAREN { prt("(EventPat)"); }
 | TOK_NOT event_pattern { prt("!EventPat"); }
 | event_pattern TOK_COLON event_pattern { prt("EventPat : EventPat"); }
@@ -209,6 +208,7 @@ statement: TOK_SEMICOLON {}
 | assignment TOK_SEMICOLON { prt("AssignStmt"); }
 | TOK_RETURN expr TOK_SEMICOLON { prt("ReturnStmt"); }
 | TOK_LBRACE statement_plus TOK_RBRACE { prt("CompoundStmt"); }
+| TOK_LBRACE statement_plus TOK_RBRACE TOK_SEMICOLON { prt("CompoundStmt"); }
 ;
 
 assignment: ref_expr TOK_ASSIGN expr { prt("Assignment"); }
@@ -238,7 +238,7 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | TOK_TRUE { prt("Literal"); }
 | TOK_FALSE { prt("Literal"); }
 | TOK_LPAREN expr TOK_RPAREN { prt("(Expr)"); }
-| TOK_UMINUS expr { prt("-Expr"); }
+| TOK_MINUS expr { prt("-Expr"); }
 | TOK_NOT expr { prt("!Expr"); }
 | TOK_BITNOT expr { prt("~Expr"); }
 | expr TOK_OR expr { prt("Expr || Expr"); }
