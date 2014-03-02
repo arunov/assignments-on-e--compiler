@@ -109,15 +109,19 @@ function_body: TOK_LBRACE variable_decl_star statement_star TOK_RBRACE {
 }
 ;
 
-variable_decl: type variable_name_plus TOK_SEMICOLON {
+variable_decl: type variable_name_plus {
 }
 ;
 
-variable_name_plus: TOK_IDENT {
+variable_name_plus: var_name_opt {}
+| variable_name_plus TOK_COMMA var_name_opt {}
+;
+
+var_name_opt: TOK_IDENT {
 	prt("VariableDecl");
 }
-| variable_name_plus TOK_COMMA TOK_IDENT {
-	prt("VariableDecl");
+| TOK_IDENT TOK_ASSIGN expr {
+	prt("VariableDeclWithInit");
 }
 ;
 
@@ -231,6 +235,8 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | TOK_UINTNUM { prt("Literal"); }
 | TOK_DOUBLENUM { prt("Literal"); }
 | TOK_STRCONST { prt("Literal"); }
+| TOK_TRUE { prt("Literal"); }
+| TOK_FALSE { prt("Literal"); }
 | TOK_LPAREN expr TOK_RPAREN { prt("(Expr)"); }
 | TOK_UMINUS expr { prt("-Expr"); }
 | TOK_NOT expr { prt("!Expr"); }
@@ -266,6 +272,7 @@ type: TOK_VOID { prt("Type"); }
 | TOK_UNSIGNED TOK_INT { prt("Type"); }
 | TOK_DOUBLE { prt("Type"); }
 | TOK_IDENT { prt("Type"); }
+| TOK_SHORT { prt("Type"); }
+| TOK_LONG { prt("Type"); }
 ;
-
 
