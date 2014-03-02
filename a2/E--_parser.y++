@@ -110,30 +110,31 @@ function_body: TOK_LBRACE variable_decl_star statement_star TOK_RBRACE {
 ;
 
 variable_decl: type variable_name_plus TOK_SEMICOLON {
+}
+;
+
+variable_name_plus: TOK_IDENT {
+	prt("VariableDecl");
+}
+| variable_name_plus TOK_COMMA TOK_IDENT {
 	prt("VariableDecl");
 }
 ;
 
-variable_name_plus: TOK_IDENT {}
-| variable_name_plus TOK_COMMA TOK_IDENT {}
-;
-
 formal_param_star: /* empty */ {}
-| formal_param_plus
+| formal_param_plus {
+	prt("FormalParamList");
+}
 ;
 
 formal_param_plus: formal_param {}
 | formal_param_plus TOK_COMMA formal_param {}
 ;
 
-event_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {
-	prt("FormalParamList");
-}
+event_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
 ;
 
-func_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {
-	prt("FormalParamList");
-}
+func_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
 ;
 
 formal_param: type TOK_IDENT { prt("FormalParam"); }
