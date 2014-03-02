@@ -5,7 +5,6 @@ errMsg("Error in event declaration, expecting formal parameters and a \")\"");
 errMsg("Error in event declaration: missing event name or \"(\"");
 errMsg("Error in parsing event parameters, may be a missing \")\"");
 errMsg("Expected an event name");
-errMsg("Must contain at least one rule");
 errMsg("Syntax error, expecting a declaration");
 errMsg("Syntax error, expecting a statement");
 errMsg("Syntax error in assignment");

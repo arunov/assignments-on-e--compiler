@@ -93,7 +93,10 @@
      TOK_LONG = 311,
      TOK_TRUE = 312,
      TOK_FALSE = 313,
-     TOK_IDENT = 314
+     TOK_IDENT = 314,
+     TOK_DOUBLE_COLON = 315,
+     TOK_LBRACK = 316,
+     TOK_DOT = 317
    };
 #endif
 
@@ -113,7 +116,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 117 "E--_parser.H"
+#line 120 "E--_parser.H"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

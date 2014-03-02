@@ -29,6 +29,8 @@ using namespace std;
 %token TOK_INT TOK_UNSIGNED TOK_BOOL TOK_BYTE TOK_DOUBLE TOK_SHORT
 %token TOK_LONG TOK_TRUE TOK_FALSE TOK_IDENT
 
+%token TOK_DOUBLE_COLON TOK_LBRACK TOK_DOT
+
 /*********************   Precedence and Associativity    ********************/
 /* 1 =  */
 %nonassoc	TOK_ASSIGN
