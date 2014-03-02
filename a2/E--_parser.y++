@@ -214,7 +214,7 @@ function_call: TOK_IDENT TOK_LPAREN expr_star TOK_RPAREN {
 }
 ;
 
-ref_expr: TOK_IDENT {}
+ref_expr: TOK_IDENT { prt("RefExpr"); }
 ;
 
 
@@ -230,7 +230,6 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | TOK_UINTNUM { prt("Literal"); }
 | TOK_DOUBLENUM { prt("Literal"); }
 | TOK_STRCONST { prt("Literal"); }
-| TOK_IDENT {}
 | TOK_LPAREN expr TOK_RPAREN { prt("(Expr)"); }
 | TOK_UMINUS expr { prt("-Expr"); }
 | TOK_NOT expr { prt("!Expr"); }
@@ -253,6 +252,9 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | expr TOK_MULT expr { prt("Expr * Expr"); }
 | expr TOK_DIV expr { prt("Expr / Expr"); }
 | expr TOK_MOD expr { prt("Expr % Expr"); }
+| function_call {}
+| assignment {}
+| ref_expr {}
 ;
 
 type: TOK_VOID { prt("Type"); }
