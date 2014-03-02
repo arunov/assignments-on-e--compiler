@@ -92,7 +92,10 @@ ifc_decl: TOK_SEMICOLON {}
 | variable_decl TOK_SEMICOLON {}
 ;
 
-rule_star: rule {}
+rule_star: error {
+	errMsg("Must contain at least one rule");
+}
+| rule {}
 | rule_star rule {}
 ;
 
@@ -264,15 +267,20 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | ref_expr {}
 ;
 
-type: TOK_VOID { prt("Type"); }
-| TOK_BOOL { prt("Type"); }
-| TOK_STRING { prt("Type"); }
-| TOK_BYTE { prt("Type"); }
-| TOK_INT { prt("Type"); }
-| TOK_UNSIGNED TOK_INT { prt("Type"); }
-| TOK_DOUBLE { prt("Type"); }
-| TOK_IDENT { prt("Type"); }
-| TOK_SHORT { prt("Type"); }
-| TOK_LONG { prt("Type"); }
+type: base_type { prt("Type"); }
+| TOK_UNSIGNED base_type { prt("Type"); }
+| user_type { prt("Type"); }
+
+base_type: TOK_VOID {}
+| TOK_BOOL {}
+| TOK_STRING {}
+| TOK_BYTE {}
+| TOK_INT {}
+| TOK_DOUBLE {}
+| TOK_SHORT {}
+| TOK_LONG {}
+;
+
+user_type: TOK_IDENT {}
 ;
 
