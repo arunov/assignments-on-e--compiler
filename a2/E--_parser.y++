@@ -87,11 +87,21 @@ ifc_decl_star: /* empty */ {
 ;
 
 ifc_decl: TOK_SEMICOLON {}
-| class_decl TOK_SEMICOLON { prt("ClassDecl"); }
+| class_decl TOK_SEMICOLON {
+	prt("ClassDecl");
+}
+| TOK_CLASS error TOK_SEMICOLON {
+	errMsg("Syntax error in class declaration: expecting class name");
+	yyerrok;
+}
 | function_decl TOK_SEMICOLON {}
 | function_decl function_body {}
 | event_decl TOK_SEMICOLON { prt("EventDecl"); }
 | variable_decl TOK_SEMICOLON {}
+| type error TOK_SEMICOLON {
+	errMsg("Error in variable declaration, may be a missing identifier");
+	yyerrok;
+}
 ;
 
 rule_star: error {
