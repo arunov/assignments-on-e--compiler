@@ -126,10 +126,16 @@ function_body: TOK_LBRACE variable_decl_star statement_star TOK_RBRACE {
 
 variable_decl: type variable_name_plus {
 }
+| error variable_name_plus {
+	errMsg("Error in variable declaration, may be a missing type name or identifier");
+}
 ;
 
 variable_name_plus: var_name_opt {}
 | variable_name_plus TOK_COMMA var_name_opt {}
+| variable_name_plus error var_name_opt {
+	errMsg("Error in variable declaration, may be a missing \",\" or identifier");
+}
 ;
 
 var_name_opt: TOK_IDENT {
