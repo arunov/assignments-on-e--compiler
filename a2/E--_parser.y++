@@ -76,6 +76,10 @@ using namespace std;
 
 specification: ifc_decl_star rule_star {
 	prt("Spec");
+}
+| /* empty */ {
+	errMsg("Must contain at least one rule");
+	prt("Spec");
 };
 
 ifc_decl_star: /* empty */ {
@@ -83,6 +87,7 @@ ifc_decl_star: /* empty */ {
 | ifc_decl_star ifc_decl {}
 | ifc_decl_star error TOK_SEMICOLON {
 	errMsg("Syntax error, expecting a declaration");
+	yyerrok;
 }
 ;
 
@@ -97,6 +102,10 @@ ifc_decl: TOK_SEMICOLON {}
 | function_decl TOK_SEMICOLON {}
 | function_decl function_body {}
 | event_decl TOK_SEMICOLON { prt("EventDecl"); }
+| TOK_EVENT error TOK_SEMICOLON {
+	errMsg("Syntax error, skipping event pattern");
+	yyerrok;
+}
 | variable_decl TOK_SEMICOLON {}
 | type error TOK_SEMICOLON {
 	errMsg("Error in variable declaration, may be a missing identifier");
@@ -105,7 +114,7 @@ ifc_decl: TOK_SEMICOLON {}
 ;
 
 rule_star: error {
-	errMsg("Must contain at least one rule");
+	errMsg("Error, expecting a rule");
 }
 | rule {}
 | rule_star rule {}
@@ -116,6 +125,14 @@ class_decl: TOK_CLASS TOK_IDENT {}
 
 function_decl: type TOK_IDENT func_formal_param_star {
 	prt("FunctionDecl");
+}
+| type error func_formal_param_star {
+	errMsg("Expecting a function declaration -- may be a missing function name");
+	yyerrok;
+}
+| error func_formal_param_star {
+	errMsg("Expecting a function declaration -- may be a missing type or a function name");
+	yyerrok;
 }
 ;
 
@@ -146,23 +163,54 @@ var_name_opt: TOK_IDENT {
 }
 ;
 
-formal_param_star: /* empty */ {}
-| formal_param_plus {
+ev_formal_param_star: /* empty */ {}
+| ev_formal_param_plus {
 	prt("FormalParamList");
 }
 ;
 
-formal_param_plus: formal_param {}
-| formal_param_plus TOK_COMMA formal_param {}
+fn_formal_param_star: /* empty */ {}
+| fn_formal_param_plus {
+	prt("FormalParamList");
+}
 ;
 
-event_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
+fn_formal_param_plus: fn_formal_param {}
+| fn_formal_param_plus TOK_COMMA fn_formal_param {}
 ;
 
-func_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
+ev_formal_param_plus: ev_formal_param {}
+| ev_formal_param_plus TOK_COMMA ev_formal_param {}
 ;
 
-formal_param: type TOK_IDENT { prt("FormalParam"); }
+event_formal_param_star: TOK_LPAREN ev_formal_param_star TOK_RPAREN {}
+| TOK_LPAREN error TOK_RPAREN {
+	errMsg("Error encountered while parsing event parameters");
+}
+| error TOK_RPAREN {
+	errMsg("Error in event declaration: missing event name or \"(\"");
+}
+| TOK_LPAREN error {
+	errMsg("Error in parsing event parameters, may be a missing \")\"");
+}
+;
+
+func_formal_param_star: TOK_LPAREN fn_formal_param_star TOK_RPAREN {}
+| TOK_LPAREN error {
+	errMsg("Error while parsing function formal parameters, missing closing paranthesis");
+}
+| error TOK_RPAREN {
+	errMsg("Error while parsing function formal parameters, missing opening paranthesis");
+}
+| TOK_LPAREN error TOK_RPAREN {
+	errMsg("Syntax error in formal parameter declaration");
+}
+;
+
+fn_formal_param: type TOK_IDENT { prt("FormalParam"); }
+;
+
+ev_formal_param: type TOK_IDENT { prt("FormalParam"); }
 ;
 
 variable_decl_star: /* empty */ {}
@@ -171,10 +219,23 @@ variable_decl_star: /* empty */ {}
 
 event_decl: TOK_EVENT TOK_IDENT event_formal_param_star {
 }
+| TOK_EVENT error event_formal_param_star {
+	errMsg("Expected an event name");
+}
+| TOK_EVENT error TOK_SEMICOLON {
+	errMsg("Error in event declaration, expecting formal parameters");
+}
+| TOK_EVENT TOK_IDENT TOK_LPAREN error {
+	errMsg("Error in event declaration, expecting formal parameters and a \")\"");
+}
 ;
 
 rule: event_pattern TOK_ARROW statement {
 	prt("Rule");
+}
+| event_pattern TOK_ARROW error {
+	errMsg("Syntax error, expecting a statement");
+	yyerrok;
 }
 ;
 
@@ -225,14 +286,30 @@ statement_plus: statement {}
 statement: TOK_SEMICOLON {}
 | TOK_IF expr statement { prt("IfThenStmt"); }
 | TOK_IF expr statement TOK_ELSE statement { prt("IfThenElseStmt"); }
+| TOK_IF expr statement TOK_ELSE error {
+	errMsg("Syntax error in else statement");
+	yyerrok;
+}
 | function_call TOK_SEMICOLON { prt("FunctionInvocationStmt"); }
 | assignment TOK_SEMICOLON { prt("AssignStmt"); }
 | TOK_RETURN expr TOK_SEMICOLON { prt("ReturnStmt"); }
+| TOK_RETURN error {
+	errMsg("Syntax error in return expression");
+	yyerrok;
+}
 | TOK_LBRACE statement_plus TOK_RBRACE { prt("CompoundStmt"); }
 | TOK_LBRACE statement_plus TOK_RBRACE TOK_SEMICOLON { prt("CompoundStmt"); }
+| error TOK_SEMICOLON {
+	errMsg("Syntax error while parsing a statement");
+	yyerrok;
+}
 ;
 
 assignment: ref_expr TOK_ASSIGN expr { prt("Assignment"); }
+| error TOK_ASSIGN expr {
+	errMsg("Syntax error in assignment");
+	yyerrok;
+}
 ;
 
 function_call: TOK_IDENT TOK_LPAREN expr_star TOK_RPAREN {
