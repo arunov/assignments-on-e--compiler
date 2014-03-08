@@ -127,7 +127,216 @@ extern const OpNode::OpInfo opInfo[];
 %start specification
 %%
 
+specification: ifc_decl_star rule_star {
+	prt("Spec");
+};
 
-specification: /* empty */;
+ifc_decl_star: /* empty */ {
+}
+| ifc_decl_star ifc_decl {}
+| ifc_decl_star error TOK_SEMICOLON {
+	errMsg("Syntax error, expecting a declaration");
+}
+;
+
+ifc_decl: TOK_SEMICOLON {}
+| class_decl TOK_SEMICOLON { prt("ClassDecl"); }
+| function_decl TOK_SEMICOLON {}
+| function_decl function_body {}
+| event_decl TOK_SEMICOLON { prt("EventDecl"); }
+| variable_decl TOK_SEMICOLON {}
+;
+
+rule_star: error {
+	errMsg("Must contain at least one rule");
+}
+| rule {}
+| rule_star rule {}
+;
+
+class_decl: TOK_CLASS TOK_IDENT {}
+;
+
+function_decl: type TOK_IDENT func_formal_param_star {
+	prt("FunctionDecl");
+}
+;
+
+function_body: TOK_LBRACE variable_decl_star statement_star TOK_RBRACE {
+	prt( "FunctionBody" );
+}
+;
+
+variable_decl: type variable_name_plus {
+}
+;
+
+variable_name_plus: var_name_opt {}
+| variable_name_plus TOK_COMMA var_name_opt {}
+;
+
+var_name_opt: TOK_IDENT {
+	prt("VariableDecl");
+}
+| TOK_IDENT TOK_ASSIGN expr {
+	prt("VariableDeclWithInit");
+}
+;
+
+formal_param_star: /* empty */ {}
+| formal_param_plus {
+	prt("FormalParamList");
+}
+;
+
+formal_param_plus: formal_param {}
+| formal_param_plus TOK_COMMA formal_param {}
+;
+
+event_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
+;
+
+func_formal_param_star: TOK_LPAREN formal_param_star TOK_RPAREN {}
+;
+
+formal_param: type TOK_IDENT { prt("FormalParam"); }
+;
+
+variable_decl_star: /* empty */ {}
+| variable_decl_star variable_decl {}
+;
+
+event_decl: TOK_EVENT TOK_IDENT event_formal_param_star {
+}
+;
+
+rule: event_pattern TOK_ARROW statement {
+	prt("Rule");
+}
+;
+
+event_pattern: primitive_pat_opt {}
+| TOK_LPAREN event_pattern TOK_RPAREN { prt("(EventPat)"); }
+| TOK_NOT event_pattern { prt("!EventPat"); }
+| event_pattern TOK_COLON event_pattern { prt("EventPat : EventPat"); }
+| event_pattern TOK_PAT_OR event_pattern { prt("EventPat \\/ EventPat"); }
+| event_pattern TOK_PAT_STAR { prt("EventPat **"); }
+;
+
+primitive_pat_opt: primitive_pat {
+	prt("PrimitivePat");
+}
+| primitive_pat TOK_BITOR expr {
+	prt("PrimitivePatWithCond");
+}
+;
+
+primitive_pat: TOK_IDENT TOK_LPAREN event_formal_param_list TOK_RPAREN {
+	prt("NormalEvent");
+}
+| TOK_ANY {
+	prt("anyEvent");
+}
+| TOK_ANY event_formal_param_star {
+	prt("anyEvent");
+}
+;
+
+event_formal_param_list: /* empty */ {}
+| TOK_IDENT {
+	prt("EventFormalParam");
+}
+| event_formal_param_list TOK_COMMA TOK_IDENT {
+	prt("EventFormalParam");
+}
+;
+
+statement_star: /* empty */ {}
+| statement_plus {}
+;
+
+statement_plus: statement {}
+| statement_plus statement {}
+;
+
+statement: TOK_SEMICOLON {}
+| TOK_IF expr statement { prt("IfThenStmt"); }
+| TOK_IF expr statement TOK_ELSE statement { prt("IfThenElseStmt"); }
+| function_call TOK_SEMICOLON { prt("FunctionInvocationStmt"); }
+| assignment TOK_SEMICOLON { prt("AssignStmt"); }
+| TOK_RETURN expr TOK_SEMICOLON { prt("ReturnStmt"); }
+| TOK_LBRACE statement_plus TOK_RBRACE { prt("CompoundStmt"); }
+| TOK_LBRACE statement_plus TOK_RBRACE TOK_SEMICOLON { prt("CompoundStmt"); }
+;
+
+assignment: ref_expr TOK_ASSIGN expr { prt("Assignment"); }
+;
+
+function_call: TOK_IDENT TOK_LPAREN expr_star TOK_RPAREN {
+	prt("FunctionInvocation");
+}
+;
+
+ref_expr: TOK_IDENT { prt("RefExpr"); }
+;
+
+
+expr_star: /* empty */ {}
+| expr_plus {}
+;
+
+expr_plus: expr {}
+| expr_plus TOK_COMMA expr {}
+;
+
+expr: TOK_ULONGNUM { prt("Literal"); }
+| TOK_UINTNUM { prt("Literal"); }
+| TOK_DOUBLENUM { prt("Literal"); }
+| TOK_STRCONST { prt("Literal"); }
+| TOK_TRUE { prt("Literal"); }
+| TOK_FALSE { prt("Literal"); }
+| TOK_LPAREN expr TOK_RPAREN { prt("(Expr)"); }
+| TOK_MINUS expr { prt("-Expr"); }
+| TOK_NOT expr { prt("!Expr"); }
+| TOK_BITNOT expr { prt("~Expr"); }
+| expr TOK_OR expr { prt("Expr || Expr"); }
+| expr TOK_AND expr { prt("Expr && Expr"); }
+| expr TOK_EQ expr { prt("Expr == Expr"); }
+| expr TOK_NE expr { prt("Expr != Expr"); }
+| expr TOK_GT expr { prt("Expr > Expr") ;}
+| expr TOK_LT expr { prt("Expr < Expr"); }
+| expr TOK_GE expr { prt("Expr >= Expr"); }
+| expr TOK_LE expr { prt("Expr <= Expr"); }
+| expr TOK_BITOR expr { prt("Expr | Expr"); }
+| expr TOK_BITXOR expr { prt("Expr ^ Expr"); }
+| expr TOK_BITAND expr { prt("Expr & Expr"); }
+| expr TOK_SHL expr { prt("Expr << Expr"); }
+| expr TOK_SHR expr { prt("Expr >> Expr"); }
+| expr TOK_PLUS expr { prt("Expr + Expr");}
+| expr TOK_MINUS expr { prt("Expr - Expr"); }
+| expr TOK_MULT expr { prt("Expr * Expr"); }
+| expr TOK_DIV expr { prt("Expr / Expr"); }
+| expr TOK_MOD expr { prt("Expr % Expr"); }
+| function_call {}
+| assignment {}
+| ref_expr {}
+;
+
+type: base_type { prt("Type"); }
+| TOK_UNSIGNED base_type { prt("Type"); }
+| user_type { prt("Type"); }
+
+base_type: TOK_VOID {}
+| TOK_BOOL {}
+| TOK_STRING {}
+| TOK_BYTE {}
+| TOK_INT {}
+| TOK_DOUBLE {}
+| TOK_SHORT {}
+| TOK_LONG {}
+;
+
+user_type: TOK_IDENT {}
+;
 
 %%
