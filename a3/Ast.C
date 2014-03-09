@@ -4,11 +4,11 @@
 
 AstNode::AstNode(NodeType nt, int line, int column, string file):
   ProgramElem(NULL, line, column, file) {
-	// Add your code here
+	nodeType_ = nt;
 }
 
 AstNode::AstNode(const AstNode& ast): ProgramElem(ast) {
-	// Add your code here
+	nodeType_ = ast.nodeType_;
 }
 
 /****************************************************************/
@@ -17,13 +17,17 @@ ExprNode::ExprNode(ExprNodeType et, const Value* val, int line, int column,
 				   string file):
 	AstNode(AstNode::NodeType::EXPR_NODE, line, column, file)
 {
-	// Add your code here
+	exprType_ = et;
+	val_ = val;
+	coercedType_ = nullptr;
 }
 
 
 ExprNode::ExprNode(const ExprNode& e) : AstNode(e)
 {
-	// Add your code here
+	exprType_ = e.exprType_;
+	val_ = e.val_;
+	coercedType_ = e.coercedType_;
 }
 /****************************************************************/
 extern const OpNode::OpInfo opInfo[] = {
