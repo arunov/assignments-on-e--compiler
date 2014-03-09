@@ -182,3 +182,7 @@ OpNode::print(ostream& os, int indent) const {
   }
   else internalErr("Unhandled case in OpNode::print");
 }
+
+/****************************************************************/
+
+void ValueNode::print(ostream& os, int indent) const {}

@@ -9,6 +9,10 @@ using namespace std;
 extern int verbosity;
 extern int yylex();
 extern void yyerror(const char *s);
+
+// TODO: Remove!
+#define prt(x) cout << x << endl;
+
 int offSet;
 extern const OpNode::OpInfo opInfo[];
 
@@ -92,6 +96,12 @@ extern const OpNode::OpInfo opInfo[];
 %type <compoundStmtVal> compoundStmt fun_rest
 %type <ifVal>  if_then_else_stmt 
 */
+
+%type <exprVal> expr
+%type <uVal> TOK_UINTNUM 
+%type <dVal> TOK_DOUBLENUM 
+%type <cVal> TOK_STRCONST
+%type <exprList> expr_plus expr_star
 
 /*********************   Precedence and Associativity    ********************/
 
@@ -281,20 +291,31 @@ ref_expr: TOK_IDENT { prt("RefExpr"); }
 ;
 
 
-expr_star: /* empty */ {}
-| expr_plus {}
+expr_star: /* empty */ { $$ = nullptr; }
+| expr_plus { $$ = $1; }
 ;
 
-expr_plus: expr {}
+expr_plus: expr { $$ = new vector<ExprNode*>;
+	$$->push_back($1);
+}
 | expr_plus TOK_COMMA expr {}
 ;
 
-expr: TOK_ULONGNUM { prt("Literal"); }
-| TOK_UINTNUM { prt("Literal"); }
-| TOK_DOUBLENUM { prt("Literal"); }
-| TOK_STRCONST { prt("Literal"); }
-| TOK_TRUE { prt("Literal"); }
-| TOK_FALSE { prt("Literal"); }
+expr: TOK_UINTNUM { prt("Literal");
+	$$ = new ValueNode(new Value($1, Type::TypeTag::UINT));
+}
+| TOK_DOUBLENUM { prt("Literal"); 
+	$$ = new ValueNode(new Value($1));
+}
+| TOK_STRCONST { prt("Literal");
+	$$ = new ValueNode(new Value($1));
+}
+| TOK_TRUE { prt("Literal");
+	$$ = new ValueNode(new Value(true));
+}
+| TOK_FALSE { prt("Literal");
+	$$ = new ValueNode(new Value(false));
+}
 | TOK_LPAREN expr TOK_RPAREN { prt("(Expr)"); }
 | TOK_MINUS expr { prt("-Expr"); }
 | TOK_NOT expr { prt("!Expr"); }
@@ -312,7 +333,9 @@ expr: TOK_ULONGNUM { prt("Literal"); }
 | expr TOK_BITAND expr { prt("Expr & Expr"); }
 | expr TOK_SHL expr { prt("Expr << Expr"); }
 | expr TOK_SHR expr { prt("Expr >> Expr"); }
-| expr TOK_PLUS expr { prt("Expr + Expr");}
+| expr TOK_PLUS expr { prt("Expr + Expr");
+	$$ = new OpNode(OpNode::OpCode::PLUS, $1, $3);
+}
 | expr TOK_MINUS expr { prt("Expr - Expr"); }
 | expr TOK_MULT expr { prt("Expr * Expr"); }
 | expr TOK_DIV expr { prt("Expr / Expr"); }
@@ -333,7 +356,6 @@ base_type: TOK_VOID {}
 | TOK_INT {}
 | TOK_DOUBLE {}
 | TOK_SHORT {}
-| TOK_LONG {}
 ;
 
 user_type: TOK_IDENT {}
